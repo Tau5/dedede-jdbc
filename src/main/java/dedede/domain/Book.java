@@ -7,20 +7,12 @@ public class Book {
     private Long ID;
     private String title;
     private String author;
-    private Boolean borrowed;
-    private Long userID;
-    private Instant borrowStart;
-    private Instant borrowEnd;
 
 
     public Book(Long ID, String title, String author, boolean borrowed, long userID, Instant borrowStart, Instant borrowEnd) {
         this.title = title;
         this.ID = ID;
         this.author = author;
-        this.borrowed = borrowed;
-        this.borrowStart = borrowStart;
-        this.borrowEnd = borrowEnd;
-        this.userID = userID;
     }
 
     public Book(String title, String author, boolean borrowed, long userID, Instant borrowStart, Instant borrowEnd) {
@@ -55,65 +47,12 @@ public class Book {
         this.author = author;
     }
 
-    public long getUserID() {
-        return userID;
-    }
-
-    public void setUserID(Long userID) {
-        this.userID = userID;
-    }
-
-    public boolean isBorrowed() {
-        return borrowed;
-    }
-
-    public void setBorrowed(Boolean borrowed) {
-        this.borrowed = borrowed;
-    }
-
-    public Instant getBorrowEnd() {
-        return borrowEnd;
-    }
-
-    public void setBorrowEnd(Instant borrowEnd) {
-        this.borrowEnd = borrowEnd;
-    }
-
-    public Instant getBorrowStart() {
-        return borrowStart;
-    }
-
-    public void setBorrowStart(Instant borrowStart) {
-        this.borrowStart = borrowStart;
-    }
-
-    public void borrow(User user) {
-        this.setBorrowed(true);
-        this.setUserID(this.ID);
-        this.setBorrowStart(Instant.now());
-        this.setBorrowEnd(
-                Instant
-                .now()
-                .plus(Duration.ofDays(15))
-        );
-    }
-
-    public void returnBook() {
-        this.setBorrowed(false);
-        this.setBorrowStart(null);
-        this.setBorrowEnd(null);
-    }
-
     @Override
     public String toString() {
         return "Book{" +
                 "ID=" + ID +
                 ", title='" + title + '\'' +
                 ", author='" + author + '\'' +
-                ", borrowed=" + borrowed +
-                ", userID=" + userID +
-                ", borrowStart=" + borrowStart +
-                ", borrowEnd=" + borrowEnd +
                 '}';
     }
 }
