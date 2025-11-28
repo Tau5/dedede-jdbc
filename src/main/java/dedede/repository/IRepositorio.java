@@ -1,5 +1,7 @@
 package dedede.repository;
 
+import java.sql.SQLException;
+
 public interface IRepositorio<T, ID> {
     /**
      * Devuelve el número de entidades.
@@ -38,13 +40,13 @@ public interface IRepositorio<T, ID> {
      *
      * @throws IllegalArgumentException En caso de ser id nulo
      */
-    T findById(ID id);
+    T findById(ID id) throws SQLException;
 
     /**
      * Devuelve todas las instancias
      * @return  Todas las instancias
      */
-    Iterable<T> findAll();
+    Iterable<T> findAll() throws SQLException;
 
     /**
      *
@@ -57,5 +59,5 @@ public interface IRepositorio<T, ID> {
      *
      * @throws IllegalArgumentException En caso de ser entity nulo
      */
-    <S extends T> S save(S entity);
+    <S extends T> S save(S entity) throws SQLException;
 }

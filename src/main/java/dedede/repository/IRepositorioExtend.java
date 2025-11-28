@@ -1,5 +1,6 @@
 package dedede.repository;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,5 +20,5 @@ public interface IRepositorioExtend<T, ID> extends IRepositorio<T,ID> {
      *
      * @return    todas las instancias.
      * */
-    List<T> findAllList();
+    List<T> findAllList() throws SQLException;
 }
