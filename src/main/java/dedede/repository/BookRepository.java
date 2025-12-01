@@ -11,19 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class BookRepository implements IRepositorioExtend<Book, Long> {
+public class BookRepository implements IRepositorioExtend<Book, Long>, FromRow<Book>, ToStatement<Book> {
     private final Connection conn;
 
     public BookRepository(Connection conn) throws IOException {
         this.conn = conn;
-    }
-
-    private Book bookFromRow(ResultSet row) throws SQLException {
-        return new Book(
-                row.getLong(1),
-                row.getString(2),
-                row.getString(3)
-        );
     }
 
     @Override
@@ -68,7 +60,7 @@ public class BookRepository implements IRepositorioExtend<Book, Long> {
         var statement = conn.prepareStatement("SELECT * from book where id = ?;");
         var res = statement.executeQuery();
 
-        Book book = bookFromRow(res);
+        Book book = fromRow(res);
 
         statement.close();
         return book;
@@ -81,7 +73,7 @@ public class BookRepository implements IRepositorioExtend<Book, Long> {
         var res = statement.executeQuery();
         Optional<Book> out = Optional.empty();
         if (res.getRow() > 0) {
-            out = Optional.of(bookFromRow(res));
+            out = Optional.of(fromRow(res));
         }
 
         statement.close();
@@ -96,7 +88,7 @@ public class BookRepository implements IRepositorioExtend<Book, Long> {
         var res = statement.executeQuery("select * from book;");
         ArrayList<Book> books = new ArrayList<>();
         while (res.next()) {
-            books.add(this.bookFromRow(res));
+            books.add(this.fromRow(res));
         }
 
         return books;
@@ -108,41 +100,44 @@ public class BookRepository implements IRepositorioExtend<Book, Long> {
         return (List<Book>) findAll();
     }
 
-    private void bookToRow(PreparedStatement row, Book book) throws SQLException {
-        row.setString(0, book.getTitle());
-        row.setString(1, book.getAuthor());
-    }
-
     @Override
     public <S extends Book> S save(S entity) throws SQLException {
         if (existsById(entity.getID())) {
-            String sql = "UPDATE public.book SET " +
-                    "title = ?, " +
-                    "author = ?, " +
-                    "WHERE id = ?";
-
-            PreparedStatement statement = conn.prepareStatement(sql);
-            bookToRow(statement, entity);
-            statement.setLong(2, entity.getID());
+            PreparedStatement statement = toUpdate(entity);
             statement.executeUpdate();
             statement.close();
             return entity;
         } else {
-            var statement = conn.prepareStatement(
-                    """
-                        INSERT INTO book (
-                        	title,
-                        	author,
-                        )
-                        VALUES (?, ?) returning *;
-                    """
-            );
-
-            bookToRow(statement, entity);
+            var statement = toInsert(entity);
             var res = statement.executeQuery();
-            var book = (S) bookFromRow(res);
+            var book = (S) fromRow(res);
             statement.close();
             return book;
         }
+    }
+
+    @Override
+    public Book fromRow(ResultSet res) throws SQLException {
+        return new Book(
+                res.getLong(1), res.getString(2)
+        );
+    }
+
+    @Override
+    public PreparedStatement toUpdate(Book book) throws SQLException {
+        var p = conn.prepareStatement("UPDATE book SET book_ISBN = ? where id = ?;");
+        p.setString(1, book.getBookISBN());
+        p.setLong(2, book.getID());
+
+        return p;
+    }
+
+    @Override
+    public PreparedStatement toInsert(Book book) throws SQLException {
+        var p = conn.prepareStatement("INSERT INTO book (book_ISBN) VALUES(?) returning *;");
+
+        p.setString(1, book.getBookISBN());
+
+        return p;
     }
 }
