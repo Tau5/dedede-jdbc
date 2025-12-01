@@ -4,18 +4,16 @@ import java.time.Instant;
 
 public class Book {
     private Long ID;
-    private String title;
-    private String author;
+    private String bookISBN;
 
 
-    public Book(Long ID, String title, String author) {
-        this.title = title;
+    public Book(Long ID, String bookISBN) {
         this.ID = ID;
-        this.author = author;
+        this.bookISBN = bookISBN;
     }
 
-    public Book(String title, String author) {
-        this(null, title, author);
+    public Book(String bookISBN) {
+        this(null, bookISBN);
     }
 
     public Long getID() {
@@ -26,28 +24,19 @@ public class Book {
         this.ID = ID;
     }
 
-    public String getTitle() {
-        return title;
+    public String getBookISBN() {
+        return bookISBN;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
+    public void setBookISBN(String bookISBN) {
+        this.bookISBN = bookISBN;
     }
 
     @Override
     public String toString() {
         return "Book{" +
                 "ID=" + ID +
-                ", title='" + title + '\'' +
-                ", author='" + author + '\'' +
+                ", bookISBN='" + bookISBN + '\'' +
                 '}';
     }
 }
