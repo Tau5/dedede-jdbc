@@ -9,13 +9,14 @@ import dedede.repository.UserRepository;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
 
 final public class Model {
     public IRepositorioExtend<Book, Long> books;
     public IRepositorioExtend<User, Long> users;
 
-    Model(File booksFile, File usersFile) throws IOException {
-        this.books = new BookRepository(booksFile);
-        this.users = new UserRepository(usersFile);
+    Model(Connection connection) throws IOException {
+        this.books = new BookRepository(connection);
+        this.users = new UserRepository(connection);
     }
 }
