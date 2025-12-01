@@ -1,6 +1,5 @@
 package dedede.domain;
 
-import java.time.Duration;
 import java.time.Instant;
 
 public class Book {
@@ -9,18 +8,14 @@ public class Book {
     private String author;
 
 
-    public Book(Long ID, String title, String author, boolean borrowed, long userID, Instant borrowStart, Instant borrowEnd) {
+    public Book(Long ID, String title, String author) {
         this.title = title;
         this.ID = ID;
         this.author = author;
     }
 
-    public Book(String title, String author, boolean borrowed, long userID, Instant borrowStart, Instant borrowEnd) {
-        this(null, title, author, borrowed, userID, borrowStart, borrowEnd);
-    }
-
     public Book(String title, String author) {
-        this(title, author, false, 0, Instant.ofEpochSecond(0), Instant.ofEpochSecond(0));
+        this(null, title, author);
     }
 
     public Long getID() {

@@ -1,159 +1,148 @@
 package dedede.repository;
 
 import dedede.domain.Book;
-import dedede.infrastructure.CSVManager;
-import dedede.infrastructure.CSVRow;
-
+import javax.sql.RowSet;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class BookRepository implements IRepositorioExtend<Book, Long> {
-    private final CSVManager table;
+    private final Connection conn;
 
-    public BookRepository(File file) throws IOException {
-        if (!file.exists()) {
-            file.getParentFile().mkdirs();
-            var writer = new BufferedWriter(new FileWriter(file));
-            writer.write("id,title,author,borrowed,userId,borrowStart,borrowEnd\n");
-            writer.flush();
-            writer.close();
-        }
-        table = new CSVManager(file);
+    public BookRepository(Connection conn) throws IOException {
+        this.conn = conn;
     }
 
-    private Book bookFromRow(CSVRow row) throws InvalidRowException {
+    private Book bookFromRow(ResultSet row) throws SQLException {
         return new Book(
-                row.getLong(0).orElseThrow(() -> new InvalidRowException("Error parsing long in column " + 0)),
-                row.getString(1).orElseThrow(() -> new InvalidRowException("Error parsing column " + 1 + " as string")),
-                row.getString(2).orElseThrow(() -> new InvalidRowException("Error parsing column " + 2 + " as string")),
-                row.getBoolean(3).orElseThrow(() -> new InvalidRowException("Error parsing column " + 3 + " as boolean")),
-                row.getLong(4).orElseThrow(() -> new InvalidRowException("Error parsing column " + 4 + " as Long")),
-                row.getInstant(5).orElseThrow(() -> new InvalidRowException("Error parsing column " + 5 + " as Instant")),
-                row.getInstant(6).orElseThrow(() -> new InvalidRowException("Error parsing column " + 6 + " as Instant"))
+                row.getLong(1),
+                row.getString(2),
+                row.getString(3)
         );
     }
 
     @Override
-    public long count() {
-        return table.listAll().size();
+    public long count() throws SQLException {
+        var statement = conn.createStatement();
+        var response = statement.executeQuery("select count(*) from book;");
+
+        var count = response.getLong(1);
+
+        statement.close();
+        return count;
     }
 
     @Override
-    public void deleteById(Long id) {
-        table.deleteRow(id.toString(), 0);
-        try {
-            table.saveFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    public void deleteById(Long id) throws SQLException {
+        var statement = conn.prepareStatement("DELETE FROM book where id = ?;");
+        statement.setLong(1, id);
+        statement.execute();
+        statement.close();
+    }
+
+    @Override
+    public void deleteAll() throws SQLException {
+        var statement = conn.createStatement();
+        statement.execute("DELETE FROM book;");
+        statement.close();
+    }
+
+    @Override
+    public boolean existsById(Long id) throws SQLException {
+        var statement = conn.prepareStatement("SELECT count(*) from book where id = ?;");
+        statement.setLong(1, id);
+        var res = statement.executeQuery();
+        var answer = res.getLong(1) > 0;
+        statement.close();
+
+        return answer;
+    }
+
+    @Override
+    public Book findById(Long id) throws SQLException {
+        var statement = conn.prepareStatement("SELECT * from book where id = ?;");
+        var res = statement.executeQuery();
+
+        Book book = bookFromRow(res);
+
+        statement.close();
+        return book;
+    }
+
+    @Override
+    public Optional<Book> findByIdOptional(Long id) throws SQLException {
+        var statement = conn.prepareStatement("SELECT * from book where id = ?;");
+        statement.setLong(0, id);
+        var res = statement.executeQuery();
+        Optional<Book> out = Optional.empty();
+        if (res.getRow() > 0) {
+            out = Optional.of(bookFromRow(res));
         }
+
+        statement.close();
+
+        return out;
     }
 
     @Override
-    public void deleteAll() {
-        table.emptyTable();
-    }
-
-    @Override
-    public boolean existsById(Long id) {
-        var rows = table.listAll().stream().filter(t ->
-                t.getLong(0).stream().anyMatch(rowId -> rowId.equals(id))
-        );
-
-        var maybeRow = rows.findAny();
-
-        return maybeRow.isPresent();
-    }
-
-    @Override
-    public Book findById(Long id) {
-        var rows = table.listAll().stream().filter(t ->
-                t.getLong(0).stream().anyMatch(rowId -> rowId.equals(id))
-        );
-
-        var maybeRow = rows.findAny();
-
-        return maybeRow.map(this::bookFromRowHandled).orElse(null);
-    }
-
-    @Override
-    public Optional<Book> findByIdOptional(Long id) {
-        var rows = table.listAll().stream().filter(t ->
-                t.getLong(0).stream().anyMatch(rowId -> rowId.equals(id))
-        );
-
-        var maybeRow = rows.findAny();
-
-        return maybeRow.map(this::bookFromRowHandled);
-    }
-
-    Book bookFromRowHandled(CSVRow row) {
-        try {
-            return bookFromRow(row);
-        } catch (InvalidRowException e) {
-            throw new RuntimeException(e);
+    public Iterable<Book> findAll() throws SQLException {
+        // Maps every CSVRow of the table to Book
+        var statement = conn.createStatement();
+        var res = statement.executeQuery("select * from book;");
+        ArrayList<Book> books = new ArrayList<>();
+        while (res.next()) {
+            books.add(this.bookFromRow(res));
         }
+
+        return books;
     }
 
     @Override
-    public Iterable<Book> findAll() {
+    public List<Book> findAllList() throws SQLException {
         // Maps every CSVRow of the table to Book
-        return table
-                .listAll()
-                .stream().map(this::bookFromRowHandled)
-                .toList();
+        return (List<Book>) findAll();
+    }
+
+    private void bookToRow(PreparedStatement row, Book book) throws SQLException {
+        row.setString(0, book.getTitle());
+        row.setString(1, book.getAuthor());
     }
 
     @Override
-    public List<Book> findAllList() {
-        // Maps every CSVRow of the table to Book
-        return table
-                .listAll()
-                .stream().map(this::bookFromRowHandled)
-                .toList();
-    }
+    public <S extends Book> S save(S entity) throws SQLException {
+        if (existsById(entity.getID())) {
+            String sql = "UPDATE public.book SET " +
+                    "title = ?, " +
+                    "author = ?, " +
+                    "WHERE id = ?";
 
-    private CSVRow bookToRow(Book book) {
-        CSVRow row = new CSVRow(7);
-        row.setLong(0, book.getID());
-        row.setString(1, book.getTitle());
-        row.setString(2, book.getAuthor());
-        row.setBoolean(3, book.isBorrowed());
-        row.setLong(4, book.getUserID());
-        row.setInstant(5, book.getBorrowStart());
-        row.setInstant(6, book.getBorrowEnd());
-
-        return row;
-    }
-
-    @Override
-    public <S extends Book> S save(S entity) {
-        long newId = 0;
-
-        if (findAllList().isEmpty()) {
-            newId = 0;
+            PreparedStatement statement = conn.prepareStatement(sql);
+            bookToRow(statement, entity);
+            statement.setLong(2, entity.getID());
+            statement.executeUpdate();
+            statement.close();
+            return entity;
         } else {
-            newId = findAllList().getLast().getID() + 1;
+            var statement = conn.prepareStatement(
+                    """
+                        INSERT INTO book (
+                        	title,
+                        	author,
+                        )
+                        VALUES (?, ?) returning *;
+                    """
+            );
+
+            bookToRow(statement, entity);
+            var res = statement.executeQuery();
+            var book = (S) bookFromRow(res);
+            statement.close();
+            return book;
         }
-
-        try {
-            if (existsById(entity.getID())) {
-                CSVRow row = bookToRow(entity);
-                table.updateRow(CSVManager.convertToRaw(entity.getID()), 0, row);
-            } else {
-                entity.setID(newId);
-                CSVRow row = bookToRow(entity);
-                table.insertRow(row);
-            }
-
-            table.saveFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return entity;
     }
 }
