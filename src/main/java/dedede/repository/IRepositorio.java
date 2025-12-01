@@ -7,7 +7,7 @@ public interface IRepositorio<T, ID> {
      * Devuelve el número de entidades.
      * @return  número de entidades
      */
-    long count();
+    long count() throws SQLException;
 
     /**
      * Borra la entidad con identificador id.
@@ -17,12 +17,12 @@ public interface IRepositorio<T, ID> {
      *
      * @throws IllegalArgumentException En caso de ser id nulo
      */
-    void deleteById(ID id);
+    void deleteById(ID id) throws SQLException;
 
     /**
      * Borra todas las entidades del repositorio.
      */
-    void deleteAll();
+    void deleteAll() throws SQLException;
 
     /**
      * Devuelve true si existe la entidad con identificador id.
@@ -31,7 +31,7 @@ public interface IRepositorio<T, ID> {
      *
      * @throws IllegalArgumentException En caso de ser id nulo
      */
-    boolean existsById(ID id); //
+    boolean existsById(ID id) throws SQLException; //
 
     /**
      * Devuelve la entidad T con identificador id.

@@ -13,7 +13,7 @@ public interface IRepositorioExtend<T, ID> extends IRepositorio<T,ID> {
      *
      * @throws IllegalArgumentException En caso de ser id nulo
      */
-    Optional<T> findByIdOptional(ID id);
+    Optional<T> findByIdOptional(ID id) throws SQLException;
 
     /**
      * Devuelve todas las instancias de tipo T
