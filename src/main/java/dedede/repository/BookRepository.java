@@ -14,7 +14,7 @@ import java.util.Optional;
 public class BookRepository implements IRepositorioExtend<Book, Long>, FromRow<Book>, ToStatement<Book> {
     private final Connection conn;
 
-    public BookRepository(Connection conn) throws IOException {
+    public BookRepository(Connection conn) {
         this.conn = conn;
     }
 

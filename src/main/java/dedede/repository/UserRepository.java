@@ -16,7 +16,7 @@ public class UserRepository implements IRepositorioExtend<User, Long>, ToStateme
 
     private Connection connection;
 
-    public UserRepository(Connection connection) throws IOException {
+    public UserRepository(Connection connection) {
         this.connection = connection;
     }
 
@@ -117,7 +117,7 @@ public class UserRepository implements IRepositorioExtend<User, Long>, ToStateme
 
     @Override
     public <S extends User> S save(S user) throws SQLException {
-        if (existsById(user.getID())) {
+        if (user.getID() != null && existsById(user.getID())) {
             var stUpdate = toUpdate(user);
             stUpdate.executeUpdate();
             stUpdate.close();
@@ -159,7 +159,7 @@ public class UserRepository implements IRepositorioExtend<User, Long>, ToStateme
 
     @Override
     public PreparedStatement toInsert(User user) throws SQLException {
-        PreparedStatement ps = connection.prepareStatement("INSERT INTO User (name, surname) VALUES (?, ?) RETURNING *;");
+        PreparedStatement ps = connection.prepareStatement("INSERT INTO \"User\" (name, surname) VALUES (?, ?) RETURNING *;");
         ps.setString(1, user.getName());
         ps.setString(2, user.getSurname());
         return ps;

@@ -14,7 +14,7 @@ import java.util.Optional;
 public class CatalogBookRepository implements IRepositorioExtend<CatalogBook, String>, FromRow<CatalogBook>, ToStatement<CatalogBook> {
     private final Connection conn;
 
-    public CatalogBookRepository(Connection conn) throws IOException {
+    public CatalogBookRepository(Connection conn) {
         this.conn = conn;
     }
 
