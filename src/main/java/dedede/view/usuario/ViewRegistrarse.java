@@ -6,6 +6,8 @@ import dedede.view.Model;
 import dedede.view.View;
 import dedede.view.ViewManager;
 
+import java.sql.SQLException;
+
 public class ViewRegistrarse implements View {
     @Override
     public void run(Model model, ViewManager viewManager) {
@@ -19,7 +21,11 @@ public class ViewRegistrarse implements View {
             nombre, apellidos
         );
 
-        user = model.users.save(user);
+        try {
+            user = model.users.save(user);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         System.out.println(user.getID());
 
