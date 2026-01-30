@@ -2,18 +2,13 @@ package dedede.repository;
 
 import dedede.domain.User;
 
-import javax.xml.transform.Result;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class UserRepository implements IRepositorioExtend<User, Long>, ToStatement<User>  {
-
+    static String table_name = "public.\"User\"";
     private Connection connection;
 
     public UserRepository(Connection connection) {
@@ -33,11 +28,12 @@ public class UserRepository implements IRepositorioExtend<User, Long>, ToStateme
 
         long count = 0;
 
-        var query = "SELECT count(*) FROM User;";
+        var query = "SELECT count(*) FROM" + this.table_name + ";";
         ResultSet rs;
         try {
             var st = connection.createStatement();
             rs = st.executeQuery(query);
+            rs.next();
             count = (long) rs.getLong(1);
             st.close();
             rs.close();
@@ -48,11 +44,11 @@ public class UserRepository implements IRepositorioExtend<User, Long>, ToStateme
     }
     @Override
     public void deleteById(Long id) {
-        var query = "DELETE FROM User WHERE id = ?;";
+        var query = "DELETE FROM" + this.table_name + " WHERE id = ?;";
         try {
             var st = connection.prepareStatement(query);
             st.setLong(1, id);
-            st.executeQuery(query);
+            st.executeQuery();
             st.close();
         } catch (SQLException e) {
             throw new RuntimeException("We can't delete usesr with " + id + " because:" + e);
@@ -61,7 +57,7 @@ public class UserRepository implements IRepositorioExtend<User, Long>, ToStateme
 
     @Override
     public void deleteAll() {
-        var query = "DELETE FROM User;";
+        var query = "DELETE FROM" + this.table_name + ";";
 
         try {
             var st = connection.createStatement();
@@ -73,32 +69,26 @@ public class UserRepository implements IRepositorioExtend<User, Long>, ToStateme
     }
 
     @Override
-    public boolean existsById(Long ID) {
-        var query = "SELECT * FROM usuario WHERE id = ?;";
-        boolean exist = false;
-        ResultSet rs;
-        try {
-            var st = connection.prepareStatement(query);
-            st.setLong(1, ID);
-            rs = st.executeQuery(query);
-            if (rs.getBoolean(String.valueOf(ID))) {
-                exist = true;
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    public boolean existsById(Long ID) throws SQLException {
+        var statement = connection.prepareStatement("SELECT count(*) from " + this.table_name + " where id = ?;");
+        statement.setLong(1, ID);
+        var res = statement.executeQuery();
+        res.next();
+        var answer = res.getLong(1) > 0;
+        statement.close();
 
-        return exist;
+        return answer;
     }
 
     @Override
     public User findById(Long id) throws SQLException {
-        var query = "SELECT * FROM usuario WHERE id = ?";
+        var query = "SELECT * FROM " + this.table_name + " WHERE id = ?";
         ResultSet rs;
         User user;
         var st = connection.prepareStatement(query);
         st.setLong(1, id);
-        rs = st.executeQuery(query);
+        rs = st.executeQuery();
+        rs.next();
         user = userFromRow(rs);
         return user;
     }
@@ -106,7 +96,7 @@ public class UserRepository implements IRepositorioExtend<User, Long>, ToStateme
     @Override
     public Iterable<User> findAll() throws SQLException {
         List<User> users = new ArrayList<>();
-        var query = "SELECT * FROM User;";
+        var query = "SELECT * FROM " + this.table_name + ";";
         var st = connection.createStatement();
         ResultSet rs = st.executeQuery(query);
         while (rs.next()) {
@@ -138,7 +128,7 @@ public class UserRepository implements IRepositorioExtend<User, Long>, ToStateme
     @Override
     public List<User> findAllList() throws SQLException {
         List<User> users = new ArrayList<>();
-        var query = "SELECT * FROM User;";
+        var query = "SELECT * FROM " + this.table_name + ";";
         var st = connection.createStatement();
         ResultSet rs = st.executeQuery(query);
         while (rs.next()) {
@@ -149,7 +139,7 @@ public class UserRepository implements IRepositorioExtend<User, Long>, ToStateme
 
     @Override
     public PreparedStatement toUpdate(User user) throws SQLException {
-        PreparedStatement ps = connection.prepareStatement("UPDATE User SET name = ?, surname = ? WHERE id = ?;");
+        PreparedStatement ps = connection.prepareStatement("UPDATE " + this.table_name + " SET name = ?, surname = ? WHERE id = ?;");
         ps.setString(1, user.getName());
         ps.setString(2, user.getSurname());
         ps.setLong(3, user.getID());
@@ -159,7 +149,7 @@ public class UserRepository implements IRepositorioExtend<User, Long>, ToStateme
 
     @Override
     public PreparedStatement toInsert(User user) throws SQLException {
-        PreparedStatement ps = connection.prepareStatement("INSERT INTO \"User\" (name, surname) VALUES (?, ?) RETURNING *;");
+        PreparedStatement ps = connection.prepareStatement("INSERT INTO " + this.table_name + " (name, surname) VALUES (?, ?) RETURNING *;");
         ps.setString(1, user.getName());
         ps.setString(2, user.getSurname());
         return ps;
