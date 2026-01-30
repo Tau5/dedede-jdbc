@@ -22,7 +22,7 @@ public class BookRepository implements IRepositorioExtend<Book, Long>, FromRow<B
     public long count() throws SQLException {
         var statement = conn.createStatement();
         var response = statement.executeQuery("select count(*) from book;");
-
+        response.next();
         var count = response.getLong(1);
 
         statement.close();
@@ -49,6 +49,7 @@ public class BookRepository implements IRepositorioExtend<Book, Long>, FromRow<B
         var statement = conn.prepareStatement("SELECT count(*) from book where id = ?;");
         statement.setLong(1, id);
         var res = statement.executeQuery();
+        res.next();
         var answer = res.getLong(1) > 0;
         statement.close();
 
@@ -58,8 +59,9 @@ public class BookRepository implements IRepositorioExtend<Book, Long>, FromRow<B
     @Override
     public Book findById(Long id) throws SQLException {
         var statement = conn.prepareStatement("SELECT * from book where id = ?;");
+        statement.setLong(1, id);
         var res = statement.executeQuery();
-
+        res.next();
         Book book = fromRow(res);
 
         statement.close();
@@ -110,6 +112,7 @@ public class BookRepository implements IRepositorioExtend<Book, Long>, FromRow<B
         } else {
             var statement = toInsert(entity);
             var res = statement.executeQuery();
+            res.next();
             var book = (S) fromRow(res);
             statement.close();
             return book;

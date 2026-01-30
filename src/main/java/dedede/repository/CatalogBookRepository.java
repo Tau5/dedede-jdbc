@@ -44,14 +44,18 @@ public class CatalogBookRepository implements IRepositorioExtend<CatalogBook, St
     public boolean existsById(String id) throws SQLException {
         var p = conn.prepareStatement("select count(*) from CatalogBook where id = ?;");
         p.setString(1, id);
-        return p.executeQuery().getLong(1) > 0;
+        var res = p.executeQuery();
+        res.next();
+        return res.getLong(1) > 0;
     }
 
     @Override
     public CatalogBook findById(String id) throws SQLException {
         var p = conn.prepareStatement("select * from CatalogBook where id = ?;");
         p.setString(1, id);
-        return fromRow(p.executeQuery());
+        var res = p.executeQuery();
+        res.next();
+        return fromRow(res);
     }
 
     @Override
@@ -67,8 +71,10 @@ public class CatalogBookRepository implements IRepositorioExtend<CatalogBook, St
             return entity;
         } else {
             var s = toInsert(entity);
+            var res = s.executeQuery();
+            res.next();
             //noinspection unchecked
-            return (S) fromRow(s.executeQuery());
+            return (S) fromRow(res);
         }
     }
 
@@ -86,9 +92,10 @@ public class CatalogBookRepository implements IRepositorioExtend<CatalogBook, St
 
     @Override
     public long count() throws SQLException {
-        return conn.createStatement()
-                .executeQuery("select count(*) from CatalogBook;")
-                .getLong(1);
+        var res = conn.createStatement()
+                .executeQuery("select count(*) from CatalogBook;");
+        res.next();
+        return res.getLong(1);
     }
 
     @Override

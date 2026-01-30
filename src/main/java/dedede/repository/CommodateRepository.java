@@ -42,6 +42,7 @@ public class CommodateRepository implements IRepositorioExtend<Commodate, Long>,
         ResultSet rs;
         try (PreparedStatement st = connection.prepareStatement(query)) {
             rs = st.executeQuery();
+            rs.next();
             count = rs.getLong(1);
             rs.close();
         }
@@ -90,6 +91,7 @@ public class CommodateRepository implements IRepositorioExtend<Commodate, Long>,
         try(PreparedStatement st = connection.prepareStatement(query)) {
             st.setLong(1, id);
             rs = st.executeQuery();
+            rs.next();
             commodate = fromRow(rs);
         }
         rs.close();
