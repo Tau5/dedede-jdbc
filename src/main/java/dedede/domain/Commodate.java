@@ -56,4 +56,8 @@ public class Commodate {
     public void setBookID(long bookID) {
         this.bookID = bookID;
     }
+
+    public boolean isActive() {
+        return this.issueDate.isBefore(Instant.now()) && this.periodEnd.isAfter(Instant.now());
+    }
 }
