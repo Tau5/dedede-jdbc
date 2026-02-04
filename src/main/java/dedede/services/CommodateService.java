@@ -20,13 +20,13 @@ public class CommodateService {
     CatalogBookRepository catalogBookRepository;
     BookRepository bookRepository;
 
-    CommodateService(Model model) {
+    public CommodateService(Model model) {
         this.commodateRepository = model.commodates;
         this.catalogBookRepository = model.catalog;
         this.bookRepository = model.books;
     }
 
-    List<Commodate> getCommodatesForBook(Book book) {
+    public List<Commodate> getCommodatesForBook(Book book) {
         try {
             return commodateRepository
                     .findAllList()
@@ -38,24 +38,24 @@ public class CommodateService {
         }
     }
 
-    Commodate registerCommodate(Book book, User user) throws SQLException {
+    public Commodate registerCommodate(Book book, User user) throws SQLException {
         return commodateRepository.save(
                 new Commodate(-1, Instant.now(), Instant.now().plus(15, ChronoUnit.DAYS), user.getID(), book.getID())
         );
     }
 
-    List<Commodate> getCommodatesForUser(User user) throws SQLException {
+    public List<Commodate> getCommodatesForUser(User user) throws SQLException {
         return commodateRepository.findAllList()
                 .stream()
                 .filter(c -> c.getUserID() == user.getID())
                 .toList();
     }
 
-    Book getBookForCommodate(Commodate commodate) throws SQLException {
+    public Book getBookForCommodate(Commodate commodate) throws SQLException {
         return bookRepository.findById(commodate.getBookID());
     }
 
-    CatalogBook getCatalogBookForCommodate(Commodate commodate) throws SQLException {
+    public CatalogBook getCatalogBookForCommodate(Commodate commodate) throws SQLException {
         return catalogBookRepository.findById(
                 getBookForCommodate(commodate).getBookISBN()
         );

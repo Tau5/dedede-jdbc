@@ -15,14 +15,14 @@ public class CatalogService {
     CatalogBookRepository catalogBookRepository;
     BookRepository bookRepository;
 
-    CatalogService(Model model) {
+    public CatalogService(Model model) {
         this.bookService = new BookService(model);
         this.catalogBookRepository = model.catalog;
         this.bookRepository = model.books;
     }
 
     // Altamente ineficiente pero no me voy a poner a optimizarlo, ya lo haremos bien con JPA
-    List<Book> getAvailableBooksForCatalogBook(CatalogBook catalogBook) throws SQLException {
+    public List<Book> getAvailableBooksForCatalogBook(CatalogBook catalogBook) throws SQLException {
         return   bookService.getBooksForCatalogBook(catalogBook)
                 .stream()
                 .filter(bookService::isBookBorrowed)
@@ -30,7 +30,7 @@ public class CatalogService {
 
     }
 
-    void createCatalogBookWithStock(CatalogBook catalogBook, int stock) throws SQLException {
+    public void createCatalogBookWithStock(CatalogBook catalogBook, int stock) throws SQLException {
        catalogBookRepository.save(catalogBook);
        for (int i = 0; i < stock; i++) {
            bookRepository.save(

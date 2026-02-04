@@ -11,11 +11,11 @@ import java.util.List;
 public class UserService {
     CommodateService commodateService;
 
-    UserService(Model model) {
+    public UserService(Model model) {
         this.commodateService = new CommodateService(model);
     }
 
-    List<Commodate> getCommodates(User user) throws SQLException {
+    public List<Commodate> getCommodates(User user) throws SQLException {
         return commodateService.getCommodatesForUser(user);
     }
 }

@@ -14,16 +14,16 @@ public class BookService {
     CommodateService commodateService;
     BookRepository bookRepository;
 
-    BookService(Model model) {
+    public BookService(Model model) {
        this.commodateService = new CommodateService(model);
        this.bookRepository = model.books;
     }
 
-    boolean isBookBorrowed(Book book) {
+    public boolean isBookBorrowed(Book book) {
         return commodateService.getCommodatesForBook(book).stream().filter(Commodate::isActive).findFirst().isPresent();
     }
 
-    Commodate borrowBook(Book book, User user) throws SQLException, BookAlreadyBorrowedException {
+    public Commodate borrowBook(Book book, User user) throws SQLException, BookAlreadyBorrowedException {
         if (!isBookBorrowed(book)) {
             throw new BookAlreadyBorrowedException();
         } else {
