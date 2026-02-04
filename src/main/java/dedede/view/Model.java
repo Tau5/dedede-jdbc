@@ -11,10 +11,10 @@ import java.io.IOException;
 import java.sql.Connection;
 
 final public class Model {
-    public IRepositorioExtend<Book, Long> books;
-    public IRepositorioExtend<CatalogBook, String> catalog;
-    public IRepositorioExtend<Commodate, Long> commodates;
-    public IRepositorioExtend<User, Long> users;
+    public BookRepository books;
+    public CatalogBookRepository catalog;
+    public CommodateRepository commodates;
+    public UserRepository users;
 
     Model(Connection connection) {
         this.books = new BookRepository(connection);
