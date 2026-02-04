@@ -7,6 +7,7 @@ import dedede.domain.User;
 import dedede.repository.BookRepository;
 import dedede.repository.CatalogBookRepository;
 import dedede.repository.CommodateRepository;
+import dedede.view.Model;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -18,6 +19,12 @@ public class CommodateService {
     CommodateRepository commodateRepository;
     CatalogBookRepository catalogBookRepository;
     BookRepository bookRepository;
+
+    CommodateService(Model model) {
+        this.commodateRepository = model.commodates;
+        this.catalogBookRepository = model.catalog;
+        this.bookRepository = model.books;
+    }
 
     List<Commodate> getCommodatesForBook(Book book) {
         try {

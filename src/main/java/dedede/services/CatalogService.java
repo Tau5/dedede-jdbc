@@ -5,6 +5,7 @@ import dedede.domain.CatalogBook;
 import dedede.repository.BookRepository;
 import dedede.repository.CatalogBookRepository;
 import dedede.repository.CommodateRepository;
+import dedede.view.Model;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -13,6 +14,12 @@ public class CatalogService {
     BookService bookService;
     CatalogBookRepository catalogBookRepository;
     BookRepository bookRepository;
+
+    CatalogService(Model model) {
+        this.bookService = new BookService(model);
+        this.catalogBookRepository = model.catalog;
+        this.bookRepository = model.books;
+    }
 
     // Altamente ineficiente pero no me voy a poner a optimizarlo, ya lo haremos bien con JPA
     List<Book> getAvailableBooksForCatalogBook(CatalogBook catalogBook) throws SQLException {
