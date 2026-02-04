@@ -43,16 +43,12 @@ public class UserRepository implements IRepositorioExtend<User, Long>, ToStateme
         return count;
     }
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(Long id) throws SQLException {
         var query = "DELETE FROM" + this.table_name + " WHERE id = ?;";
-        try {
-            var st = connection.prepareStatement(query);
-            st.setLong(1, id);
-            st.executeQuery();
-            st.close();
-        } catch (SQLException e) {
-            throw new RuntimeException("We can't delete usesr with " + id + " because:" + e);
-        }
+        var st = connection.prepareStatement(query);
+        st.setLong(1, id);
+        st.executeQuery();
+        st.close();
     }
 
     @Override
