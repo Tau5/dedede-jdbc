@@ -6,6 +6,8 @@ import dedede.view.Model;
 import dedede.view.View;
 import dedede.view.ViewManager;
 
+import java.sql.SQLException;
+
 public class ReturnBookView implements View {
     private User user;
     public ReturnBookView(User user) {
@@ -14,22 +16,32 @@ public class ReturnBookView implements View {
 
     @Override
     public void run(Model model, ViewManager viewManager) {
-        var books = model.books;
+        var commodates = model.commodates;
 
         System.out.println("Libros que puede devolver:");
-        books.findAllList().forEach(book -> {
-            if (book.isBorrowed()) {
-                System.out.println(book);
-            }
-        });
+        try {
+            commodates.findAllList().forEach(commodate -> {
+                if (!(commodate.getUserID() == -1)) {
+                    System.out.println(commodate);
+                }
+            });
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         var id = MenuHelper.getNumber("Ingresa el id del libro que quieres devolver:");
-        books.findAllList().forEach(book -> {
-            if (book.getID() == id) {
-                book.returnBook();
-                model.books.save(book);
-            }
-        });
-
+        try {
+            commodates.findAllList().forEach(commodate -> {
+                if (commodate.getBookID() == id) {
+                    try {
+                        model.commodates.deleteById(commodate.getBookID());
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         viewManager.switchView(new UserHomeView(user));
     }
 }

@@ -3,6 +3,8 @@ package dedede.view.usuario;
 import dedede.domain.User;
 import dedede.view.*;
 
+import java.sql.SQLException;
+
 public class DeleteUserView implements View {
 
     private User user;
@@ -16,7 +18,11 @@ public class DeleteUserView implements View {
         MenuHelper.sc.nextLine();
         String response = MenuHelper.sc.nextLine();
         if (response.equals("y")) {
-            model.users.deleteById(user.getID());
+            try {
+                model.users.deleteById(user.getID());
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
             viewManager.switchView(new ViewModo());
         } else {
             viewManager.switchView(new UserHomeView(user));
