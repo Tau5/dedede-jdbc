@@ -29,7 +29,7 @@ public class CatalogBookRepository implements IRepositorioExtend<CatalogBook, St
 
     @Override
     public void deleteById(String id) throws SQLException {
-        var p = conn.prepareStatement("delete from catalogbook where id = ?;");
+        var p = conn.prepareStatement("delete from catalogbook where ISBN = ?;");
         p.setString(1, id);
         p.executeQuery();
     }
@@ -42,7 +42,7 @@ public class CatalogBookRepository implements IRepositorioExtend<CatalogBook, St
 
     @Override
     public boolean existsById(String id) throws SQLException {
-        var p = conn.prepareStatement("select count(*) from CatalogBook where id = ?;");
+        var p = conn.prepareStatement("select count(*) from CatalogBook where ISBN = ?;");
         p.setString(1, id);
         var res = p.executeQuery();
         res.next();
@@ -51,7 +51,7 @@ public class CatalogBookRepository implements IRepositorioExtend<CatalogBook, St
 
     @Override
     public CatalogBook findById(String id) throws SQLException {
-        var p = conn.prepareStatement("select * from CatalogBook where id = ?;");
+        var p = conn.prepareStatement("select * from CatalogBook where ISBN = ?;");
         p.setString(1, id);
         var res = p.executeQuery();
         res.next();
@@ -101,9 +101,9 @@ public class CatalogBookRepository implements IRepositorioExtend<CatalogBook, St
     @Override
     public CatalogBook fromRow(ResultSet res) throws SQLException {
         return new CatalogBook(
-                res.getString(0),
                 res.getString(1),
-                res.getString(2)
+                res.getString(2),
+                res.getString(3)
         );
     }
 
@@ -122,11 +122,12 @@ public class CatalogBookRepository implements IRepositorioExtend<CatalogBook, St
 
     @Override
     public PreparedStatement toInsert(CatalogBook catalogBook) throws SQLException {
-        var p = conn.prepareStatement("INSERT INTO CatalogBook (title, author)" +
-                "VALUES (?, ?) returning *;");
+        var p = conn.prepareStatement("INSERT INTO CatalogBook (isbn, title, author)" +
+                "VALUES (?, ?, ?) returning *;");
 
-        p.setString(0, catalogBook.getTitle());
-        p.setString(1, catalogBook.getAuthor());
+        p.setString(1, catalogBook.getISBN());
+        p.setString(2, catalogBook.getTitle());
+        p.setString(3, catalogBook.getAuthor());
 
         return p;
     }
