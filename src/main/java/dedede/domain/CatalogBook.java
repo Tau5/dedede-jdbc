@@ -35,4 +35,14 @@ public class CatalogBook {
     public void setAuthor(String author) {
         this.author = author;
     }
+
+    @Override
+    public String toString() {
+        return "CatalogBook{" +
+                "ISBN='" + ISBN + '\'' +
+                ", title='" + title + '\'' +
+                ", author='" + author + '\'' +
+                '}';
+    }
+
 }
