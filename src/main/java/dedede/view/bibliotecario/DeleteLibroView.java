@@ -23,26 +23,11 @@ public class DeleteLibroView implements View {
         System.out.print("ISBN a eliminar: ");
         String id = MenuHelper.sc.nextLine();
 
-        Optional<CatalogBook> maybeBook = null;
         try {
-            maybeBook = model.catalog.findByIdOptional(id);
-
-            maybeBook.ifPresentOrElse(
-                    book -> {
-                        try {
-                            model.catalog.deleteById(book.getISBN());
-                        } catch (SQLException e) {
-                            throw new RuntimeException(e);
-                        }
-                    },
-                    () -> {
-                        System.out.println("Error: No existe un libro con ese ID");
-                    }
-            );
+            model.catalog.deleteById(id);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.out.println("Error: No existe un libro con ese ID (" + e.getLocalizedMessage() + ")");
         }
-
 
         viewManager.switchView(new ViewBibliotecario());
     }

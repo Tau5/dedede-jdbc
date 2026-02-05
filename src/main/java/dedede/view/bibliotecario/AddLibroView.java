@@ -16,22 +16,24 @@ public class AddLibroView implements View {
     public void run(Model model, ViewManager viewManager) {
         CatalogService service = new CatalogService(model);
         System.out.print("Título: ");
-        MenuHelper.sc.nextLine();
         String title = MenuHelper.sc.nextLine();
-        MenuHelper.sc.reset();
+
         System.out.print("Autor: ");
         String author = MenuHelper.sc.nextLine();
-        System.out.println("ISBN: ");
-        String isbn = MenuHelper.sc.nextLine();
+
+        System.out.print("ISBN: ");
+        String isbn = MenuHelper.sc.nextLine().strip();
         int stock = MenuHelper.getNumber("Cantidad: ");
 
         try {
             service.createCatalogBookWithStock(new CatalogBook(isbn, author, title), stock);
+            System.out.println("Libro creado satisfactoriamente!");
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.out.println("Error: Error al insertar en la base de datos (" + e.getLocalizedMessage() + ")");
+        } catch (CatalogBook.InvalidISBNException e) {
+            System.out.println("Error: ISBN inválido");
         }
 
-        System.out.println("Libro creado satisfactoriamente!");
 
         viewManager.switchView(new ViewBibliotecario());
     }
