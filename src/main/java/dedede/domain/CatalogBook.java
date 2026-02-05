@@ -7,16 +7,19 @@ public class CatalogBook {
     private String author;
 
     public CatalogBook(String ISBN, String title, String author) {
-        this.ISBN = ISBN;
-        this.title = title;
-        this.author = author;
+        this.setISBN(ISBN);
+        this.setTitle(title);
+        this.setAuthor(author);
     }
 
     public String getISBN() {
         return ISBN;
     }
 
-    public void setISBN(String ISBN) {
+    public void setISBN(String ISBN) throws InvalidISBNException {
+        if (ISBN.length() != 13) {
+            throw new InvalidISBNException();
+        }
         this.ISBN = ISBN;
     }
 
@@ -35,4 +38,15 @@ public class CatalogBook {
     public void setAuthor(String author) {
         this.author = author;
     }
+
+    @Override
+    public String toString() {
+        return "CatalogBook{" +
+                "ISBN='" + ISBN + '\'' +
+                ", title='" + title + '\'' +
+                ", author='" + author + '\'' +
+                '}';
+    }
+
+    public static class InvalidISBNException extends RuntimeException { }
 }
