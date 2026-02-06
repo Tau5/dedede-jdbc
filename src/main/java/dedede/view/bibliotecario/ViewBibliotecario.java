@@ -2,6 +2,8 @@ package dedede.view.bibliotecario;
 
 import dedede.view.*;
 
+import java.sql.SQLException;
+
 public class ViewBibliotecario implements View {
     @Override
     public void run(Model model, ViewManager viewManager) {
