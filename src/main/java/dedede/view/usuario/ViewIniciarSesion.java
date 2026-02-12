@@ -6,21 +6,37 @@ import dedede.view.Model;
 import dedede.view.View;
 import dedede.view.ViewManager;
 
+import java.sql.SQLException;
+
 public class ViewIniciarSesion implements View {
     @Override
     public void run(Model model, ViewManager viewManager) {
-        model.users.findAllList().forEach(user -> {
-            System.out.println(
-                    user.getID() + ": " + user.getName() + " " + user.getSurname()
-            );
-        });
+        try {
+            model.users.findAllList().forEach(user -> {
+                System.out.println(
+                        user.getID() + ": " + user.getName() + " " + user.getSurname()
+                );
+            });
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         int chosen = -1;
-        while (!model.users.existsById((long) chosen)) {
+        while (true) {
+            try {
+                if (model.users.existsById((long) chosen)) break;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
             chosen = MenuHelper.getNumber("id:");
         }
 
-        User usuario = model.users.findById((long) chosen);
+        User usuario = null;
+        try {
+            usuario = model.users.findById((long) chosen);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         System.out.println(usuario.getName());
 
