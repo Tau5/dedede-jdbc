@@ -41,7 +41,11 @@ public class BorrowBooksView implements View {
                         System.out.println("No hay libros disponibles para ese libro");
                     } else {
                         var libro = libros.getFirst();
-                        bookService.borrowBook(libro, user);
+                        try {
+                            bookService.borrowBook(libro, user);
+                        } catch (BookService.BookAlreadyBorrowedException e) {
+                            System.out.println("No se ha podido prestar: " + e.getMessage());
+                        }
                     }
                 } catch (SQLException e) {
                     throw new RuntimeException(e);

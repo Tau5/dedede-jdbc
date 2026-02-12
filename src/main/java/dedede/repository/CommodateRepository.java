@@ -55,7 +55,7 @@ public class CommodateRepository implements IRepositorioExtend<Commodate, Long>,
 
         try(PreparedStatement st = connection.prepareStatement(query)) {
             st.setLong(1, id);
-            st.executeQuery();
+            st.execute();
         }
     }
 
@@ -63,7 +63,7 @@ public class CommodateRepository implements IRepositorioExtend<Commodate, Long>,
     public void deleteAll() throws SQLException {
         var query = "DELETE FROM Commodate;";
         try (PreparedStatement st = connection.prepareStatement(query)) {
-            st.executeQuery();
+            st.execute();
         }
     }
 

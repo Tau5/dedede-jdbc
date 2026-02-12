@@ -45,16 +45,16 @@ public class UserRepository implements IRepositorioExtend<User, Long>, ToStateme
 
     @Override
     public void deleteById(Long id) throws SQLException {
-        var query = "DELETE FROM" + this.table_name + " WHERE id = ?;";
+        var query = "DELETE FROM " + this.table_name + " WHERE id = ?;";
         var st = connection.prepareStatement(query);
         st.setLong(1, id);
-        st.executeQuery();
+        st.execute();
         st.close();
     }
 
     @Override
     public void deleteAll() {
-        var query = "DELETE FROM" + this.table_name + ";";
+        var query = "DELETE FROM " + this.table_name + ";";
 
         try {
             var st = connection.createStatement();

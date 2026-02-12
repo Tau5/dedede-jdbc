@@ -31,13 +31,13 @@ public class CatalogBookRepository implements IRepositorioExtend<CatalogBook, St
     public void deleteById(String id) throws SQLException {
         var p = conn.prepareStatement("delete from catalogbook where ISBN = ?;");
         p.setString(1, id);
-        p.executeQuery();
+        p.execute();
     }
 
     @Override
     public void deleteAll() throws SQLException {
         var p = conn.prepareStatement("delete from catalogbook;");
-        p.executeQuery();
+        p.execute();
     }
 
     @Override
