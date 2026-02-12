@@ -15,7 +15,7 @@ public class ListBooksView implements View {
         try {
             books.findAllList().forEach(System.out::println);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.out.println("No se han podido encontrar los libros (" + e.getLocalizedMessage() +")");
         }
         viewManager.switchView(new ViewBibliotecario());
     }
