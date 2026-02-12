@@ -111,9 +111,11 @@ public class UserRepository implements IRepositorioExtend<User, Long>, ToStateme
             return user;
         } else {
             var stInsert = toInsert(user);
-            stInsert.executeQuery();
+            var rs = stInsert.executeQuery();
+            rs.next();
+            User newUser = userFromRow(rs);
             stInsert.close();
-            return user;
+            return (S) newUser;
         }
     }
 
