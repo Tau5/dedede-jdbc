@@ -69,18 +69,11 @@ public class CommodateRepository implements IRepositorioExtend<Commodate, Long>,
 
     @Override
     public boolean existsById(Long id) throws SQLException {
-        var query = "SELECT * FROM Commodate WHERE id = ?;";
-        boolean exist = false;
-        ResultSet rs;
-        try(PreparedStatement st = connection.prepareStatement(query)) {
-            st.setLong(1, id);
-             rs = st.executeQuery();
-             if (rs.getBoolean(String.valueOf(id))) {
-                 exist = true;
-             }
-             rs.close();
-        }
-        return exist;
+        var p = connection.prepareStatement("select count(*) from Commodate where id = ?;");
+        p.setLong(1, id);
+        var res = p.executeQuery();
+        res.next();
+        return res.getLong(1) > 0;
     }
 
     @Override
@@ -112,7 +105,7 @@ public class CommodateRepository implements IRepositorioExtend<Commodate, Long>,
             return entity;
         } else {
             var ps = toInsert(entity);
-            ps.executeQuery();
+            ps.execute();
             ps.close();
             return entity;
         }
@@ -131,9 +124,9 @@ public class CommodateRepository implements IRepositorioExtend<Commodate, Long>,
 
     @Override
     public PreparedStatement toInsert(Commodate commodate) throws SQLException {
-        PreparedStatement ps = connection.prepareStatement("INSERT INTO Commodate (issue_date, period_end, user_id, book_ID) VALUES(?, ?, ?, ?);");
-        ps.setDate(1, (Date) Date.from(commodate.getIssueDate()));
-        ps.setDate(2, (Date) Date.from(commodate.getPeriodEnd()));
+        PreparedStatement ps = connection.prepareStatement("INSERT INTO Commodate (issue_date, period_end, user_id, book_id) VALUES(?, ?, ?, ?);");
+        ps.setDate(1, new Date(commodate.getIssueDate().toEpochMilli()));
+        ps.setDate(2, new Date(commodate.getPeriodEnd().toEpochMilli()));
         ps.setLong(3, commodate.getUserID());
         ps.setLong(4, commodate.getBookID());
         return ps;
@@ -143,8 +136,8 @@ public class CommodateRepository implements IRepositorioExtend<Commodate, Long>,
     public Commodate fromRow(ResultSet res) throws SQLException {
         return new Commodate(
                 res.getLong(1),
-                res.getDate(2).toInstant(),
-                res.getDate(3).toInstant(),
+                res.getTimestamp(2).toInstant(),
+                res.getTimestamp(3).toInstant(),
                 res.getLong(4),
                 res.getLong(5)
         );

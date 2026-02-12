@@ -25,7 +25,7 @@ public class CatalogService {
     public List<Book> getAvailableBooksForCatalogBook(CatalogBook catalogBook) throws SQLException {
         return   bookService.getBooksForCatalogBook(catalogBook)
                 .stream()
-                .filter(bookService::isBookBorrowed)
+                .filter(b -> !(bookService.isBookBorrowed(b)))
                 .toList();
 
     }

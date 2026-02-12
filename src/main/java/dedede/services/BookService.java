@@ -24,7 +24,7 @@ public class BookService {
     }
 
     public Commodate borrowBook(Book book, User user) throws SQLException, BookAlreadyBorrowedException {
-        if (!isBookBorrowed(book)) {
+        if (isBookBorrowed(book)) {
             throw new BookAlreadyBorrowedException();
         } else {
             return commodateService.registerCommodate(book, user);

@@ -15,7 +15,7 @@ public class App {
             Properties props = new Properties();
             props.setProperty("user", "root");
             props.setProperty("password", "root");
-            Connection connection = DriverManager.getConnection("jdbc:postgresql://10.11.83.201/biblioteca", props);
+            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost/biblioteca", props);
             model = new Model(connection);
         } catch (SQLException e) {
             throw new RuntimeException(e);
